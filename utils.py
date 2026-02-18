@@ -5,18 +5,23 @@ import yaml
 from crewai import LLM
 from crewai.tasks import TaskOutput
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # Load YAML configurations
 def load_yaml_config(path):
     with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-# Initialize LLM
+# Initialize LLM (uses OLLAMA_BASE_URL and OLLAMA_MODEL from env if set)
 def load_llm():
-    llm = LLM(
-        model="ollama/deepseek-r1:7b",
-        base_url="http://localhost:11434"
-    )
-    return llm
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    model_name = os.getenv("OLLAMA_MODEL", "deepseek-r1:7b")
+    model = f"ollama/{model_name}" if not model_name.startswith("ollama/") else model_name
+    return LLM(model=model, base_url=base_url)
 
 # Check for mermaid syntax
 def check_mermaid_syntax(task_output: TaskOutput):

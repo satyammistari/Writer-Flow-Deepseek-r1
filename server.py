@@ -1,10 +1,38 @@
+import os
+import urllib.request
 from pathlib import Path
 from typing import Optional
 from mcp.server.fastmcp import FastMCP
 from main import run_doc_flow
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # create FastMCP instance
 mcp = FastMCP("doc-writer")
+
+@mcp.tool()
+def health_check() -> str:
+    """
+    Check if the doc-writer server and Ollama are reachable.
+    Use this to verify setup before generating documentation.
+
+    Args: None
+
+    Returns:
+        str: Server status and Ollama connectivity.
+    """
+    lines = ["Server: OK"]
+    base = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    try:
+        urllib.request.urlopen(f"{base}/api/tags", timeout=3)
+        lines.append("Ollama: reachable")
+    except Exception as e:
+        lines.append(f"Ollama: not reachable ({e})")
+    return "\n".join(lines)
 
 @mcp.tool()
 def write_documentation(repo_url: str) -> str:

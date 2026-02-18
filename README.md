@@ -169,9 +169,11 @@ flowchart LR
 **2. Install Python dependencies (3.12+)**
 
 ```bash
-pip install crewai crewai-tools ollama mcp
+pip install crewai crewai-tools ollama mcp python-dotenv
 # or: uv sync
 ```
+
+Optional: copy `.env.example` to `.env` and set `OLLAMA_BASE_URL` or `OLLAMA_MODEL` if your Ollama runs elsewhere or you use a different model.
 
 **3. Configure MCP in Cursor**
 
@@ -204,10 +206,19 @@ python server.py
 - In Cursor chat: ask to generate documentation and provide a GitHub repo URL.  
 - Then use the tools to list or view generated docs.
 
+### Quick test
+
+1. In Cursor chat, ask the assistant to run **`health_check`** — you should see `Server: OK` and `Ollama: reachable` if Ollama is running.
+2. Generate docs for this repo: ask to **write documentation** for  
+   `https://github.com/satyammistari/Writer-Flow-Deepseek-r1`  
+   (or any public GitHub repo).
+3. When it finishes, ask to **list_docs**, then **view_content** for a file (e.g. `docs/overview.mdx`).
+
 ### API (MCP tools)
 
 | Tool | Args | Description |
 |------|------|-------------|
+| `health_check` | — | Checks server and Ollama connectivity. Use before generating docs. |
 | `write_documentation` | `repo_url: str` | Generates documentation for the given GitHub repo URL. Returns a success or error message. |
 | `list_docs` | — | Lists generated `.mdx` files under `docs/`. |
 | `view_content` | `file_path: str` | Returns the content of a generated doc (e.g. `docs/overview.mdx`). Path must be under `docs/` and use `.mdx` or `.md`. |
